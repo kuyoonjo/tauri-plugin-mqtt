@@ -1,0 +1,27 @@
+[package]
+name = "tauri-plugin-mqtt"
+version = "0.1.0"
+authors = [ "kuyoonjo" ]
+description = "MQTT Client for Tauri App"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/kuyoonjo/tauri-plugin-mqtt"
+keywords = ["tauri", "plugin", "mqtt"]
+exclude = ["/examples", "/webview-dist", "/webview-src", "node_modules"]
+readme = "README.md"
+links = "tauri-plugin-mqtt"
+
+[build-dependencies]
+tauri-plugin = { version = "2.0.1", features = ["build"] }
+
+[dependencies]
+tauri = { version = "2.0.4" }
+serde = "1.0"
+thiserror = "1.0"
+tokio = { version = "1.37.0", features = [] }
+lazy_static = "1.4.0"
+debug_print = "1.0.0"
+rumqttc = "0.24.0"
+url = "2.5.2"
+anyhow = "1.0.88"
+tokio-native-tls = "0.3.1"
