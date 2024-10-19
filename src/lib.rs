@@ -19,6 +19,7 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
             commands::connect,
             commands::disconnect,
             commands::subscribe,
+            commands::unsubscribe,
             commands::publish,
         ])
         .build()

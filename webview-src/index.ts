@@ -5,21 +5,50 @@ import { Buffer } from 'buffer';
 /**
  * 
  * @param id A unique ID
- * @param endpoint e.g. 0.0.0.0:8080
+ * @param topic The topic to subscribe to
+ * @param qos The QoS level
+ * @param retain Whether the message should be retained
+ * @param payload The payload
  */
-export async function bind(id: string, endpoint: string) {
-  await invoke('plugin:tcp|bind', {
-    id, endpoint,
+export async function publish(
+  id: string,
+  topic: String,
+  qos: number,
+  retain: boolean,
+  payload: string | number[],
+) {
+  await invoke('plugin:mqtt|publish', {
+    id, topic, qos, retain, payload: typeof payload === 'string' ? Array.from(Buffer.from(payload)) : payload,
   });
 }
 
 /**
  * 
  * @param id A unique ID
+ * @param topic The topic to subscribe to
+ * @param qos The QoS level
  */
-export async function unbind(id: string) {
-  await invoke('plugin:tcp|unbind', {
-    id
+export async function subscribe(
+  id: string,
+  topic: String,
+  qos: number,
+) {
+  await invoke('plugin:mqtt|subscribe', {
+    id, topic, qos,
+  });
+}
+
+/**
+ * 
+ * @param id A unique ID
+ * @param topic The topic to subscribe to
+ */
+export async function unsubscribe(
+  id: string,
+  topic: String,
+) {
+  await invoke('plugin:mqtt|unsubscribe', {
+    id, topic,
   });
 }
 
@@ -27,11 +56,11 @@ export async function unbind(id: string) {
 /**
  * 
  * @param id A unique ID
- * @param endpoint e.g. 0.0.0.0:8080
+ * @param uri e.g. mqtt://test.mosquitto.org
  */
-export async function connect(id: string, endpoint: string) {
-  await invoke('plugin:tcp|connect', {
-    id, endpoint,
+export async function connect(id: string, uri: string, tlsOptions?: TlsOptions) {
+  await invoke('plugin:mqtt|connect', {
+    id, uri, tlsOptions,
   });
 }
 
@@ -40,39 +69,35 @@ export async function connect(id: string, endpoint: string) {
  * @param id A unique ID
  */
 export async function disconnect(id: string) {
-  await invoke('plugin:tcp|connect', {
+  await invoke('plugin:mqtt|disconnect', {
     id
   });
 }
 
-/**
- * 
- * @param id A unique ID
- * @param message A string or a uint8 array
- * @param addr Optional destination address. e.g. 0.0.0.0:8080
- */
-export async function send(id: string, message: string | number[], addr?: string) {
-  await invoke('plugin:tcp|send', {
-    id,
-    message: typeof message === 'string' ? Array.from(Buffer.from(message)) : message,
-    addr,
-  });
+export interface TlsOptions {
+  skipVerification?: boolean;
+  ca?: number[];
+  alpn?: number[][];
+  client_cert?: number[];
+  client_key?: number[];
 }
 
 export interface Payload {
   id: string;
   event: {
-    bind?: string;
-    unbind?: [];
-    connect?: string;
-    disconnect?: string;
+    connect?: [];
+    disconnect?: [];
     message?: {
-      addr: string;
-      data: number[];
+      dup: boolean;
+      qos: 0 | 1 | 2;
+      retain: boolean;
+      topic: string;
+      pkid: number;
+      payload: number[];
     };
   };
 }
 
 export function listen(handler: EventCallback<Payload>, options?: Options) {
-  return _listen('plugin://tcp', handler, options);
+  return _listen('plugin://mqtt', handler, options);
 }

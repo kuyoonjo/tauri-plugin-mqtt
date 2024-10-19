@@ -295,16 +295,6 @@
       "type": "string",
       "oneOf": [
         {
-          "description": "Enables the bind command without any pre-configured scope.",
-          "type": "string",
-          "const": "allow-bind"
-        },
-        {
-          "description": "Denies the bind command without any pre-configured scope.",
-          "type": "string",
-          "const": "deny-bind"
-        },
-        {
           "description": "Enables the connect command without any pre-configured scope.",
           "type": "string",
           "const": "allow-connect"
@@ -335,16 +325,6 @@
           "const": "deny-publish"
         },
         {
-          "description": "Enables the send command without any pre-configured scope.",
-          "type": "string",
-          "const": "allow-send"
-        },
-        {
-          "description": "Denies the send command without any pre-configured scope.",
-          "type": "string",
-          "const": "deny-send"
-        },
-        {
           "description": "Enables the subscribe command without any pre-configured scope.",
           "type": "string",
           "const": "allow-subscribe"
@@ -355,14 +335,14 @@
           "const": "deny-subscribe"
         },
         {
-          "description": "Enables the unbind command without any pre-configured scope.",
+          "description": "Enables the unsubscribe command without any pre-configured scope.",
           "type": "string",
-          "const": "allow-unbind"
+          "const": "allow-unsubscribe"
         },
         {
-          "description": "Denies the unbind command without any pre-configured scope.",
+          "description": "Denies the unsubscribe command without any pre-configured scope.",
           "type": "string",
-          "const": "deny-unbind"
+          "const": "deny-unsubscribe"
         },
         {
           "description": "Allows All",

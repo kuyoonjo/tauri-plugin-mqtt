@@ -1,6 +1,6 @@
 use tauri::Runtime;
 
-use crate::error::Result;
+use crate::{error::Result, mqtt_options::TlsOptions};
 
 #[cfg(desktop)]
 use crate::desktop as platform;
@@ -13,6 +13,17 @@ pub async fn subscribe<R: Runtime>(
     qos: u8,
 ) -> Result<()> {
     platform::subscribe(id, topic, qos)
+        .await
+        .map_err(|e| e.into())
+}
+
+#[tauri::command]
+pub async fn unsubscribe<R: Runtime>(
+    _window: tauri::Window<R>,
+    id: String,
+    topic: String,
+) -> Result<()> {
+    platform::unsubscribe(id, topic)
         .await
         .map_err(|e| e.into())
 }
@@ -33,9 +44,10 @@ pub async fn publish<R: Runtime>(
 pub async fn connect<R: Runtime>(
     window: tauri::Window<R>,
     id: String,
-    endpoint: String,
+    uri: String,
+    tls_options: Option<TlsOptions>,
 ) -> Result<()> {
-    platform::connect(window, id, endpoint)
+    platform::connect(window, id, uri, tls_options)
         .await
         .map_err(|e| e.into())
 }

@@ -4,6 +4,7 @@ Allows All
 
 - `allow-publish`
 - `allow-subscribe`
+- `allow-unsubscribe`
 - `allow-connect`
 - `allow-disconnect`
 
@@ -15,32 +16,6 @@ Allows All
 <th>Description</th>
 </tr>
 
-
-<tr>
-<td>
-
-`mqtt:allow-bind`
-
-</td>
-<td>
-
-Enables the bind command without any pre-configured scope.
-
-</td>
-</tr>
-
-<tr>
-<td>
-
-`mqtt:deny-bind`
-
-</td>
-<td>
-
-Denies the bind command without any pre-configured scope.
-
-</td>
-</tr>
 
 <tr>
 <td>
@@ -123,32 +98,6 @@ Denies the publish command without any pre-configured scope.
 <tr>
 <td>
 
-`mqtt:allow-send`
-
-</td>
-<td>
-
-Enables the send command without any pre-configured scope.
-
-</td>
-</tr>
-
-<tr>
-<td>
-
-`mqtt:deny-send`
-
-</td>
-<td>
-
-Denies the send command without any pre-configured scope.
-
-</td>
-</tr>
-
-<tr>
-<td>
-
 `mqtt:allow-subscribe`
 
 </td>
@@ -175,12 +124,12 @@ Denies the subscribe command without any pre-configured scope.
 <tr>
 <td>
 
-`mqtt:allow-unbind`
+`mqtt:allow-unsubscribe`
 
 </td>
 <td>
 
-Enables the unbind command without any pre-configured scope.
+Enables the unsubscribe command without any pre-configured scope.
 
 </td>
 </tr>
@@ -188,12 +137,12 @@ Enables the unbind command without any pre-configured scope.
 <tr>
 <td>
 
-`mqtt:deny-unbind`
+`mqtt:deny-unsubscribe`
 
 </td>
 <td>
 
-Denies the unbind command without any pre-configured scope.
+Denies the unsubscribe command without any pre-configured scope.
 
 </td>
 </tr>

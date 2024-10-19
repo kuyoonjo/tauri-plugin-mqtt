@@ -1,13 +1,20 @@
 use anyhow::{anyhow, Result};
-use rumqttc::MqttOptions;
+use rumqttc::{tokio_rustls::rustls::client::danger::ServerCertVerifier, MqttOptions};
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
 use url::Url;
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[serde(rename_all = "camelCase")]
 pub(crate) enum TlsOptions {
-    NativePem(Vec<u8>),
-    NativeDer(Vec<u8>),
+    SkipVerification(bool),
+    #[serde(untagged)]
+    Simple {
+        ca: Vec<u8>,
+        alpn: Option<Vec<Vec<u8>>>,
+        client_cert: Option<Vec<u8>>, 
+        client_key: Option<Vec<u8>>, 
+    },
 }
 
 pub(crate) fn mqtt_options_from_uri(uri: &str) -> Result<MqttOptions> {
@@ -33,7 +40,6 @@ pub(crate) fn mqtt_options_from_uri(uri: &str) -> Result<MqttOptions> {
     if !username.is_empty() {
         options.set_credentials(username, password.unwrap_or(""));
     }
-
 
     if let Some(keep_alive) = parsed_url
         .query_pairs()
@@ -62,4 +68,71 @@ pub(crate) fn mqtt_options_from_uri(uri: &str) -> Result<MqttOptions> {
     options.set_max_packet_size(incoming, outgoing);
 
     Ok(options)
+}
+
+#[derive(Debug)]
+pub(crate) struct SkipServerVerification;
+
+impl SkipServerVerification {
+    pub fn new() -> std::sync::Arc<Self> {
+        std::sync::Arc::new(Self)
+    }
+}
+
+impl ServerCertVerifier for SkipServerVerification {
+    fn verify_tls12_signature(
+        &self,
+        _message: &[u8],
+        _cert: &rumqttc::tokio_rustls::rustls::pki_types::CertificateDer<'_>,
+        _dss: &rumqttc::tokio_rustls::rustls::DigitallySignedStruct,
+    ) -> std::result::Result<
+        rumqttc::tokio_rustls::rustls::client::danger::HandshakeSignatureValid,
+        rumqttc::tokio_rustls::rustls::Error,
+    > {
+        Ok(rumqttc::tokio_rustls::rustls::client::danger::HandshakeSignatureValid::assertion())
+    }
+
+    fn verify_tls13_signature(
+        &self,
+        _message: &[u8],
+        _cert: &rumqttc::tokio_rustls::rustls::pki_types::CertificateDer<'_>,
+        _dss: &rumqttc::tokio_rustls::rustls::DigitallySignedStruct,
+    ) -> std::result::Result<
+        rumqttc::tokio_rustls::rustls::client::danger::HandshakeSignatureValid,
+        rumqttc::tokio_rustls::rustls::Error,
+    > {
+        Ok(rumqttc::tokio_rustls::rustls::client::danger::HandshakeSignatureValid::assertion())
+    }
+
+    fn supported_verify_schemes(&self) -> Vec<rumqttc::tokio_rustls::rustls::SignatureScheme> {
+        vec![
+            rumqttc::tokio_rustls::rustls::SignatureScheme::ECDSA_NISTP256_SHA256,
+            rumqttc::tokio_rustls::rustls::SignatureScheme::ECDSA_NISTP384_SHA384,
+            rumqttc::tokio_rustls::rustls::SignatureScheme::ECDSA_NISTP521_SHA512,
+            rumqttc::tokio_rustls::rustls::SignatureScheme::ECDSA_SHA1_Legacy,
+            rumqttc::tokio_rustls::rustls::SignatureScheme::ED25519,
+            rumqttc::tokio_rustls::rustls::SignatureScheme::ED448,
+            rumqttc::tokio_rustls::rustls::SignatureScheme::RSA_PKCS1_SHA1,
+            rumqttc::tokio_rustls::rustls::SignatureScheme::RSA_PKCS1_SHA256,
+            rumqttc::tokio_rustls::rustls::SignatureScheme::RSA_PKCS1_SHA384,
+            rumqttc::tokio_rustls::rustls::SignatureScheme::RSA_PKCS1_SHA512,
+            rumqttc::tokio_rustls::rustls::SignatureScheme::RSA_PSS_SHA256,
+            rumqttc::tokio_rustls::rustls::SignatureScheme::RSA_PSS_SHA384,
+            rumqttc::tokio_rustls::rustls::SignatureScheme::RSA_PSS_SHA512,
+        ]
+    }
+
+    fn verify_server_cert(
+        &self,
+        _end_entity: &rumqttc::tokio_rustls::rustls::pki_types::CertificateDer<'_>,
+        _intermediates: &[rumqttc::tokio_rustls::rustls::pki_types::CertificateDer<'_>],
+        _server_name: &rumqttc::tokio_rustls::rustls::pki_types::ServerName<'_>,
+        _ocsp_response: &[u8],
+        _now: rumqttc::tokio_rustls::rustls::pki_types::UnixTime,
+    ) -> std::result::Result<
+        rumqttc::tokio_rustls::rustls::client::danger::ServerCertVerified,
+        rumqttc::tokio_rustls::rustls::Error,
+    > {
+        Ok(rumqttc::tokio_rustls::rustls::client::danger::ServerCertVerified::assertion())
+    }
 }

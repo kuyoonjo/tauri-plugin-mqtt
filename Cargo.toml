@@ -1,7 +1,7 @@
 [package]
 name = "tauri-plugin-mqtt"
 version = "0.1.0"
-authors = [ "kuyoonjo" ]
+authors = ["kuyoonjo"]
 description = "MQTT Client for Tauri App"
 edition = "2021"
 license = "MIT"
@@ -21,7 +21,9 @@ thiserror = "1.0"
 tokio = { version = "1.37.0", features = [] }
 lazy_static = "1.4.0"
 debug_print = "1.0.0"
-rumqttc = "0.24.0"
+rumqttc = { version = "0.24.0", features = ["use-rustls"] }
 url = "2.5.2"
 anyhow = "1.0.88"
 tokio-native-tls = "0.3.1"
+# rustls = "0.23.15"
+# tokio-rustls = "0.26.0"

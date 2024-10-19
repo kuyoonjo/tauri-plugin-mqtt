@@ -1,14 +1,14 @@
-# tauri-plugin-tcp
+# tauri-plugin-mqtt
 
 This plugin only works with Tauri 2.x only.
 
 ## Install
 
 ```bash
-cargo add tauri-plugin-tcp
+cargo add tauri-plugin-mqtt
 ```
 ```bash
-npm i @kuyoonjo/tauri-plugin-tcp
+npm i @kuyoonjo/tauri-plugin-mqtt
 ```
 
 ## Usage
@@ -23,50 +23,72 @@ tauri::Builder::default()
 
 ### javascript
 ```javascript
-import { connect, disconnect, send, listen } from "@kuyoonjo/tauri-plugin-tcp";
+import { connect, disconnect, publish, subscribe, unsubscribe } from "@kuyoonjo/tauri-plugin-mqtt";
 
 // Server side
-const sid = 'unique-server-id';
-await bind(sid, '0.0.0.0:8080');
-await send(sid, '192.168.1.2:9090', 'hello');
-let clientAddr = '';
+const id = 'unique-id';
+await connect(id, 'mqtt://test.mosquitto.org');
+await disconnect(id);
+let topic = '/tauri-plugin-mqtt';
+await subscribe(id, topic, 0);
+await publish(id, topic, 0, false, 'hello');
 await listen((x) => {
   console.log(x.payload);
-  if (x.payload.id === sid && x.payload.event.connect) {
-    clientAddr = x.payload.event.connect;
-    await send(sid, 'hello', clientAddr);
-  }
 });
-await unbind(sid);
+await unsubscribe(id, topic);
+await disconnect(id);
+```
+#### Functions
+```typescript
+export async function publish(
+  id: string,
+  topic: String,
+  qos: number,
+  retain: boolean,
+  payload: string | number[],
+);
 
-// Client side
-const cid = 'unique-client-id';
-await connect(cid, '0.0.0.0:8080');
-await listen((x) => {
-  console.log(x.payload);
-  if (x.payload.id === cid && x.payload.event.message) {
-    // npm i buffer
-    // import { Buffer } from 'buffer';
-    let str = Buffer.from(x.payload.event.message.data).toString();
-    if (str === 'hello')
-      await send(cid, 'world');
-  }
-});
-await disconnect(cid);
+export async function subscribe(
+  id: string,
+  topic: String,
+  qos: number,
+);
+
+export async function unsubscribe(
+  id: string,
+  topic: String,
+);
+
+export async function connect(id: string, uri: string, tlsOptions?: TlsOptions);
+
+export async function disconnect(id: string);
+
+export function listen(handler: EventCallback<Payload>, options?: Options);
 ```
 
-#### Event Payload Interface
+#### Interfaces
+
 ```typescript
+export interface TlsOptions {
+  skipVerification?: boolean;
+  ca?: number[];
+  alpn?: number[][];
+  client_cert?: number[];
+  client_key?: number[];
+}
+
 export interface Payload {
   id: string;
   event: {
-    bind?: string;
-    unbind?: [];
-    connect?: string;
-    disconnect?: string;
+    connect?: [];
+    disconnect?: [];
     message?: {
-      addr: string;
-      data: number[];
+      dup: boolean;
+      qos: 0 | 1 | 2;
+      retain: boolean;
+      topic: string;
+      pkid: number;
+      payload: number[];
     };
   };
 }
@@ -74,7 +96,7 @@ export interface Payload {
 
 ### permissions
 
-add `"tcp:default"` into `"permissions"` list of `src-tauri\capabilities\default.json`
+add `"mqtt:default"` into `"permissions"` list of `src-tauri\capabilities\default.json`
 
 ```json
 {
@@ -83,7 +105,7 @@ add `"tcp:default"` into `"permissions"` list of `src-tauri\capabilities\default
   "permissions": [
     "core:default",
     ...
-    "tcp:default"
+    "mqtt:default"
   ]
 }
 ```
