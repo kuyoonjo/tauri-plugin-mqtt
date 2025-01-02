@@ -114,10 +114,10 @@ pub(crate) async fn connect<R: Runtime>(
                             event: PayloadEvent::Disconnect(),
                         },
                     );
-                    // 发生错误断开链接
+                    // 发生错误停止进程并移除
                     if let Some(s) = clients.get(&mqtt_id) {
                         s.task.abort();
-                        clients.remove(&id);
+                        CLIENTS.write().await.remove(&mqtt_id);
                         sleep(time::Duration::from_millis(100)).await;
                     }
                     break;
