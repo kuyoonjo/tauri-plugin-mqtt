@@ -115,9 +115,10 @@ pub(crate) async fn connect<R: Runtime>(
                         },
                     );
                     // 发生错误停止任务并移除
+                    let mut clients = CLIENTS.write().await;
                     if let Some(s) = clients.get(&mqtt_id) {
                         s.task.abort();
-                        CLIENTS.write().await.remove(&mqtt_id);
+                        clients.remove(&mqtt_id);
                         sleep(time::Duration::from_millis(100)).await;
                     }
                     break;
