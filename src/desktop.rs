@@ -105,7 +105,7 @@ pub(crate) async fn connect<R: Runtime>(
                 Err(e) => {
                     debug_println!("Error = {e:?}");
                     // 不能只移除，会导致无法手动disconnect
-                    //CLIENTS.write().await.remove(&mqtt_id);
+                    // CLIENTS.write().await.remove(&mqtt_id);
                     let _ = window.app_handle().emit_to(
                         window.label(),
                         "plugin://mqtt",
@@ -115,11 +115,8 @@ pub(crate) async fn connect<R: Runtime>(
                         },
                     );
                     // 发生错误停止任务并移除
-                    let mut clients = CLIENTS.write().await;
-                    if let Some(s) = clients.get(&mqtt_id) {
-                        s.task.abort();
-                        clients.remove(&mqtt_id);
-                        sleep(time::Duration::from_millis(100)).await;
+                    if let Some(client) = CLIENTS.write().await.remove(&mqtt_id) {
+                        client.task.abort();
                     }
                     break;
                 }
