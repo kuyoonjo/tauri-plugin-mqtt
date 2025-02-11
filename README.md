@@ -28,7 +28,7 @@ import { connect, disconnect, publish, subscribe, unsubscribe } from "@kuyoonjo/
 // Server side
 const id = 'unique-id';
 // 增加完整url例子
-await connect(id, 'mqtt://test:test@test.mosquitto.org:123456');
+await connect(id, 'mqtt://userName:passWord@test.mosquitto.org:12345?client_id=id123');
 await disconnect(id);
 let topic = '/tauri-plugin-mqtt';
 await subscribe(id, topic, 0);
